@@ -1,0 +1,202 @@
+---
+title: "Bigcontest_EDA"
+author: "Park SeHyun
+output: 
+  rmdformats::readthedown:
+      toc_depth: 3
+---
+
+# 0. Library Packages 
+```{r, message=FALSE, warning=FALSE}
+library(dplyr)
+options(dplyr.summarise.inform = FALSE) 
+library(tidyr)
+library(ggplot2)
+library(lubridate)
+library(plotly)
+# install.packages("progress")
+library(progress)
+```
+
+
+
+# 1. Data load
+```{r}
+loan_result <- read.csv("../../../data/loan_result.csv")
+log_data <- read.csv("../../../data/log_data.csv")
+user_spec <- read.csv("../../../data/user_spec.csv")
+```
+
+```{r}
+user_spec
+```
+
+```{r}
+colSums(is.na(user_spec))
+```
+
+
+# 2. User_spec 데이터 전처리  
+
+## 2.1 birth_year & gender
+
+```{r}
+# 각 user_id 별로 생일과 성별 종합
+user_info <- user_spec %>% 
+             group_by(user_id) %>% 
+             summarise(birth_year = mean(birth_year, na.rm = T), gender = mean(gender, na.rm = T)) %>% 
+             ungroup()
+
+# 모든 데이터에서 NA값인 user_id 개수 확인
+colSums(is.na(user_info))
+
+# NA 값 제거(6856명) 및 NA 채우기
+na_list <- user_info$user_id[is.na(user_info$birth_year)]
+user_spec2 <- user_spec[!(user_spec$user_id %in% na_list), !names(user_spec) %in% c("birth_year", "gender")] %>% left_join(user_info, by = "user_id")
+colSums(is.na(user_spec2))
+```
+
+## 2.2 income_type
+```{r}
+unique(user_spec2$income_type)
+user_spec2[user_spec2$income_type == "",]
+
+user_spec3 <- user_spec2[user_spec2$income_type != "",]
+colSums(is.na(user_spec3))
+```
+
+## 2.3 yearly_income
+```{r}
+user_spec3[is.na(user_spec3$yearly_income),]
+
+```
+
+
+```{r}
+user_spec3$income_type <- as.factor(user_spec3$income_type)
+user_spec3$employment_type <- as.factor(user_spec3$employment_type)
+user_spec3$houseown_type <- as.factor(user_spec3$houseown_type)
+user_spec3$purpose <- as.factor(user_spec3$purpose)
+user_spec3$gender <- as.factor(user_spec3$gender)
+```
+
+
+
+
+```{r}
+names(user_spec)
+```
+
+
+
+# 3. User_spec 데이터 분석
+## 3.1 birth_year
+```{r}
+# 전체 나이 분포
+user_spec3 %>% group_by(birth_year) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = birth_year, y = num)) + 
+  geom_line() +
+  theme_minimal() +
+  scale_x_continuous(breaks = seq(min(user_spec3$birth_year), max(user_spec3$birth_year), 5)) +
+  labs(title = "전체 나이 분포포")
+
+# 성별 나이 분포
+user_spec3 %>% group_by(birth_year, gender) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = birth_year, y = num, group = gender, col = gender)) + 
+  geom_line() +
+  theme_minimal() +
+  scale_color_discrete(name = "성별", breaks = c(0, 1), labels = c("여성", "남성")) +
+  labs(title = "성별 나이 분포포")
+
+# 수입 종류별 나이 분포
+user_spec3 %>% group_by(birth_year, income_type) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = birth_year, y = num, group = income_type, col = income_type)) + 
+  geom_line() +
+  theme_minimal() +
+  scale_color_discrete(name = "수입 종류별") +
+  labs(title = "수입 종류별 나이 분포포")
+
+# 고용 형태별 나이 분포
+user_spec3 %>% group_by(birth_year, employment_type) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = birth_year, y = num, group = employment_type, col = employment_type)) + 
+  geom_line() +
+  theme_minimal() +
+  scale_color_discrete(name = "고용 형태별") +
+  labs(title = "고용 형태별 나이 분포포")
+
+# 집 종류별 나이 분포
+user_spec3 %>% group_by(birth_year, houseown_type) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = birth_year, y = num, group = houseown_type, col = houseown_type)) + 
+  geom_line() +
+  theme_minimal() +
+  scale_color_discrete(name = "집 종류별") +
+  labs(title = "집 종류별 나이 분포포")
+
+# 목적별 나이 분포
+user_spec3 %>% group_by(birth_year, purpose) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = birth_year, y = num, group = purpose, col = purpose)) + 
+  geom_line() +
+  theme_minimal() +
+  scale_color_discrete(name = "목적별") +
+  labs(title = "목적별 나이 분포포")
+
+levels(user_spec3$income_type)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
