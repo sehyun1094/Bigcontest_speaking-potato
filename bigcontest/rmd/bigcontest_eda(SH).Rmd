@@ -12,6 +12,7 @@ mainfont: NanumGothic
 library(dplyr)
 options(dplyr.summarise.inform = FALSE) 
 library(tidyr)
+library(lubridate)
 library(ggplot2)
 library(lubridate)
 library(plotly)
@@ -64,9 +65,9 @@ unique(user_spec2$income_type)
 ```
 
 ## 2.3 yearly_income
-Na 값을 가진 5가지 행 제거
+Na 값을 가진 5 행 제거
 ```{r}
-user_spec3 <- user_spec2[!(is.na(user_spec3$yearly_income)),]
+user_spec3 <- user_spec2[!(is.na(user_spec2$yearly_income)),]
 ```
 
 ## 2.4 company_enter_month
@@ -76,80 +77,191 @@ user_spec3$company_enter_month[is.na(user_spec3$company_enter_month)] <- 0
 user_spec3$company_enter_month[user_spec3$company_enter_month > 1000000] <- user_spec3$company_enter_month[user_spec3$company_enter_month > 1000000] %/% 100
 ```
 
-## 2.5 num to factor
-num 형태의 변수 중 범주형 데이터들을 factor로 변환
+## 2.5 desired_amount
+Na 값을 가진 74 행 제거
 ```{r}
-user_spec3$income_type <- as.factor(user_spec3$income_type)
-user_spec3$employment_type <- as.factor(user_spec3$employment_type)
-user_spec3$houseown_type <- as.factor(user_spec3$houseown_type)
-user_spec3$purpose <- as.factor(user_spec3$purpose)
-user_spec3$gender <- as.factor(user_spec3$gender)
+user_spec4 <- user_spec3[!(is.na(user_spec3$desired_amount)),]
 ```
 
+## 2.6 existing_loan_cnt
+기존 대출 횟수가 Na인 값은 0으로 수정
+```{r}
+user_spec4$existing_loan_cnt[is.na(user_spec4$existing_loan_cnt)] <- 0
+```
+
+## 2.7 num to factor
+num 형태의 변수 중 범주형 데이터들을 factor로 변환
+```{r}
+user_spec4$income_type <- as.factor(user_spec4$income_type)
+user_spec4$employment_type <- as.factor(user_spec4$employment_type)
+user_spec4$houseown_type <- as.factor(user_spec4$houseown_type)
+user_spec4$purpose <- as.factor(user_spec4$purpose)
+user_spec4$gender <- as.factor(user_spec4$gender)
+```
+
+```{r}
+colSums(is.na(user_spec4))
+```
 
 
 # 3. User_spec 데이터 분석
 ## 3.1 birth_year
 ```{r}
 # 전체 나이 분포
-user_spec3 %>% group_by(birth_year) %>% summarise(num = n()) %>% ungroup() %>% 
+ggplotly(
+user_spec4 %>% group_by(birth_year) %>% summarise(num = n()) %>% ungroup() %>% 
   ggplot(mapping = aes(x = birth_year, y = num)) + 
   geom_line() +
   theme_minimal() +
-  scale_x_continuous(breaks = seq(min(user_spec3$birth_year), max(user_spec3$birth_year), 5)) +
-  labs(title = "전체 나이 분포포")
+  scale_x_continuous(breaks = seq(min(user_spec4$birth_year), max(user_spec4$birth_year), 5)) +
+  labs(title = "전체 나이 분포")
+)
 
 # 성별 나이 분포
-user_spec3 %>% group_by(birth_year, gender) %>% summarise(num = n()) %>% ungroup() %>% 
+ggplotly(
+user_spec4 %>% group_by(birth_year, gender) %>% summarise(num = n()) %>% ungroup() %>% 
   ggplot(mapping = aes(x = birth_year, y = num, group = gender, col = gender)) + 
   geom_line() +
   theme_minimal() +
-  scale_color_discrete(name = "성별", breaks = c(0, 1), labels = c("여성", "남성")) +
-  labs(title = "성별 나이 분포포")
+  scale_color_discrete(name = "성별") +
+  labs(title = "성별 나이 분포")
+)
 
 # 수입 종류별 나이 분포
-user_spec3 %>% group_by(birth_year, income_type) %>% summarise(num = n()) %>% ungroup() %>% 
+ggplotly(
+user_spec4 %>% group_by(birth_year, income_type) %>% summarise(num = n()) %>% ungroup() %>% 
   ggplot(mapping = aes(x = birth_year, y = num, group = income_type, col = income_type)) + 
   geom_line() +
   theme_minimal() +
   scale_color_discrete(name = "수입 종류별") +
-  labs(title = "수입 종류별 나이 분포포")
+  labs(title = "수입 종류별 나이 분포")
+)
 
 # 고용 형태별 나이 분포
-user_spec3 %>% group_by(birth_year, employment_type) %>% summarise(num = n()) %>% ungroup() %>% 
+ggplotly(
+user_spec4 %>% group_by(birth_year, employment_type) %>% summarise(num = n()) %>% ungroup() %>% 
   ggplot(mapping = aes(x = birth_year, y = num, group = employment_type, col = employment_type)) + 
   geom_line() +
   theme_minimal() +
   scale_color_discrete(name = "고용 형태별") +
-  labs(title = "고용 형태별 나이 분포포")
+  labs(title = "고용 형태별 나이 분포")
+)
 
 # 집 종류별 나이 분포
-user_spec3 %>% group_by(birth_year, houseown_type) %>% summarise(num = n()) %>% ungroup() %>% 
+ggplotly(
+user_spec4 %>% group_by(birth_year, houseown_type) %>% summarise(num = n()) %>% ungroup() %>% 
   ggplot(mapping = aes(x = birth_year, y = num, group = houseown_type, col = houseown_type)) + 
   geom_line() +
   theme_minimal() +
   scale_color_discrete(name = "집 종류별") +
-  labs(title = "집 종류별 나이 분포포")
+  labs(title = "집 종류별 나이 분포")
+)
 
 # 목적별 나이 분포
-user_spec3 %>% group_by(birth_year, purpose) %>% summarise(num = n()) %>% ungroup() %>% 
+ggplotly(
+user_spec4 %>% group_by(birth_year, purpose) %>% summarise(num = n()) %>% ungroup() %>% 
   ggplot(mapping = aes(x = birth_year, y = num, group = purpose, col = purpose)) + 
   geom_line() +
   theme_minimal() +
   scale_color_discrete(name = "목적별") +
-  labs(title = "목적별 나이 분포포")
+  labs(title = "목적별 나이 분포")
+)
 
 ```
+```{r}
+unique(user_spec4$gender)
+```
+
+
 
 ## 3.2 company_enter_month
 ```{r}
-user_spec3$company_enter_month
+# 연도별 입사일 도수
+user_spec4 %>% mutate(year = company_enter_month %/% 100) %>% 
+               group_by(year) %>% summarise(num = n()) %>% 
+               filter(num > 100)
+
+
+# 전체 회사 입사일 분포
+ggplotly(
+user_spec4 %>% filter(company_enter_month > 0) %>% 
+  group_by(company_enter_month) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = ym(company_enter_month), y = num)) +
+  geom_line() +
+  xlim(ym(198601), ym(202211)) +
+  theme_minimal() +
+  xlab("date") +
+  labs(title = "전체 회사 입사일 분포")
+)
+
+# 성별 회사 입사일 분포
+ggplotly(
+user_spec4 %>% filter(company_enter_month > 0) %>% 
+  group_by(company_enter_month, gender) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = ym(company_enter_month), y = num, group = gender, color = gender)) +
+  geom_line() +
+  xlim(ym(198601), ym(202211)) +
+  theme_minimal() +
+  scale_color_discrete(name = "성별") +
+  xlab("date") +
+  labs(title = "성별 회사 입사일 분포")
+)
+
+# 수입 종류별 회사 입사일 분포
+ggplotly(
+user_spec4 %>% filter(company_enter_month > 0) %>% 
+  group_by(company_enter_month, income_type) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = ym(company_enter_month), y = num, group = income_type, color = income_type)) +
+  geom_line() +
+  xlim(ym(198601), ym(202211)) +
+  theme_minimal() +
+  scale_color_discrete(name = "수입 종류") +
+  xlab("date") +
+  labs(title = "수입 종류별 회사 입사일 분포")
+)
+
+# 고용 형태별 회사 입사일 분포
+ggplotly(
+user_spec4 %>% filter(company_enter_month > 0) %>% 
+  group_by(company_enter_month, employment_type) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = ym(company_enter_month), y = num, group = employment_type, col = employment_type)) + 
+  geom_line() +
+  theme_minimal() +
+  scale_color_discrete(name = "고용 형태별") +
+  xlab("date") +
+  labs(title = "고용 형태별 회사 입사일 분포")
+)
+
+# 집 종류별 회사 입사일 분포
+ggplotly(
+user_spec4 %>% filter(company_enter_month > 0) %>% 
+  group_by(company_enter_month, houseown_type) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = ym(company_enter_month), y = num, group = houseown_type, col = houseown_type)) + 
+  geom_line() +
+  theme_minimal() +
+  scale_color_discrete(name = "집 종류별") +
+  xlab("date") +
+  labs(title = "집 종류별 회사 입사일 분포")
+)
+
+# 목적별 회사 입사일 분포
+ggplotly(
+user_spec4 %>% filter(company_enter_month > 0) %>% 
+  group_by(company_enter_month, purpose) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = ym(company_enter_month), y = num, group = purpose, col = purpose)) + 
+  geom_line() +
+  theme_minimal() +
+  scale_color_discrete(name = "목적별") +
+  xlab("date") +
+  labs(title = "목적별 회사 입사일 분포")
+)
+
 ```
 
 
 ## 3.3 desired_amount
 ```{r}
-user_spec3$desired_amount
+
 ```
 
 
