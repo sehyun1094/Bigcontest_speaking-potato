@@ -427,10 +427,133 @@ user_spec4 %>% filter(desired_amount > quantile(user_spec4$desired_amount, probs
 )
 ```
 
+## 3.4 existing_loan_cnt
+```{r}
+# 전체 대출 횟수 분포
+ggplotly(
+user_spec4 %>% group_by(existing_loan_cnt) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = existing_loan_cnt, y = num)) + 
+  geom_bar(stat = 'identity') + 
+  theme_minimal() +
+  labs(title = "전체 대출 횟수 분포")
+)
+
+ggplotly(
+user_spec4 %>% group_by(existing_loan_cnt) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = existing_loan_cnt, y = num)) + 
+  geom_line() + 
+  theme_minimal() +
+  labs(title = "전체 대출 횟수 분포")
+)
+
+# 성별 대출 횟수 분포
+ggplotly(
+user_spec4 %>% group_by(existing_loan_cnt, gender) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = existing_loan_cnt, y = num, group = gender, color = gender)) +
+  geom_line() +
+  theme_minimal() +
+  scale_color_discrete(name = "성별") +
+  labs(title = "성별 대출 횟수 분포")
+)
+
+# 수입 종류별 대출 횟수 분포
+ggplotly(
+user_spec4 %>% group_by(existing_loan_cnt, income_type) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = existing_loan_cnt, y = num, group = income_type, color = income_type)) +
+  geom_line() +
+  theme_minimal() +
+  scale_color_discrete(name = "수입 종류") +
+  labs(title = "수입 종류별 대출 횟수 분포")
+)
+
+# 고용 형태별 대출 횟수 분포
+ggplotly(
+user_spec4 %>% group_by(existing_loan_cnt, employment_type) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = existing_loan_cnt, y = num, group = employment_type, col = employment_type)) + 
+  geom_line() +
+  theme_minimal() +
+  scale_color_discrete(name = "고용 형태별") +
+  labs(title = "고용 형태별 대출 횟수 분포")
+)
+
+# 집 종류별 대출 횟수 분포
+ggplotly(
+user_spec4 %>% group_by(existing_loan_cnt, houseown_type) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = existing_loan_cnt, y = num, group = houseown_type, col = houseown_type)) + 
+  geom_line() +
+  theme_minimal() +
+  scale_color_discrete(name = "집 종류별") +
+  labs(title = "집 종류별 대출 횟수 분포")
+)
+
+# 목적별 대출 횟수 분포
+ggplotly(
+user_spec4 %>% group_by(existing_loan_cnt, purpose) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = existing_loan_cnt, y = num, group = purpose, col = purpose)) + 
+  geom_line() +
+  theme_minimal() +
+  scale_color_discrete(name = "목적별") +
+  labs(title = "목적별 대출 횟수 분포")
+)
+
+```
 
 
+```{r}
+# 전체 대출 횟수 분포
+ggplotly(
+user_spec4 %>% ggplot(mapping = aes(x = existing_loan_cnt)) + 
+  geom_density() + 
+  theme_minimal() +
+  labs(title = "전체 대출 횟수 분포")
+)
 
+# 성별 대출 횟수 분포
+ggplotly(
+user_spec4 %>% ggplot(mapping = aes(x = existing_loan_cnt, group = gender, color = gender)) +
+  geom_density() +
+  theme_minimal() +
+  scale_color_discrete(name = "성별") +
+  labs(title = "성별 대출 횟수 분포")
+)
 
+# 수입 종류별 대출 횟수 분포
+ggplotly(
+user_spec4 %>% ggplot(mapping = aes(x = existing_loan_cnt, group = income_type, color = income_type)) +
+  geom_density() +
+  theme_minimal() +
+  scale_color_discrete(name = "수입 종류") +
+  labs(title = "수입 종류별 대출 횟수 분포")
+)
+
+# 고용 형태별 대출 횟수 분포
+ggplotly(
+user_spec4 %>% ggplot(mapping = aes(x = existing_loan_cnt, group = employment_type, col = employment_type)) + 
+  geom_density() +
+  theme_minimal() +
+  scale_color_discrete(name = "고용 형태별") +
+  labs(title = "고용 형태별 대출 횟수 분포")
+)
+
+# 집 종류별 대출 횟수 분포
+ggplotly(
+user_spec4 %>% ggplot(mapping = aes(x = existing_loan_cnt, group = houseown_type, col = houseown_type)) + 
+  geom_density() +
+  theme_minimal() +
+  scale_color_discrete(name = "집 종류별") +
+  labs(title = "집 종류별 대출 횟수 분포")
+)
+
+# 목적별 대출 횟수 분포
+ggplotly(
+user_spec4 %>% ggplot(mapping = aes(x = existing_loan_cnt, group = purpose, col = purpose)) + 
+  geom_density() +
+  theme_minimal() +
+  scale_color_discrete(name = "목적별") +
+  labs(title = "목적별 대출 횟수 분포")
+)
+
+```
 
 
 
