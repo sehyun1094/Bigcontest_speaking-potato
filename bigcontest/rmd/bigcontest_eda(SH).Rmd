@@ -77,19 +77,33 @@ user_spec3$company_enter_month[is.na(user_spec3$company_enter_month)] <- 0
 user_spec3$company_enter_month[user_spec3$company_enter_month > 1000000] <- user_spec3$company_enter_month[user_spec3$company_enter_month > 1000000] %/% 100
 ```
 
-## 2.5 desired_amount
+## 2.5 purpose
+영어로 입력된 값을 한글로 병합
+```{r}
+unique(user_spec3$purpose)
+user_spec3$purpose[user_spec3$purpose == "LIVING"] <- "생활비"
+user_spec3$purpose[user_spec3$purpose == "SWITCHLOAN"] <- "대환대출"
+user_spec3$purpose[user_spec3$purpose == "ETC"] <- "기타"
+user_spec3$purpose[user_spec3$purpose == "INVEST"] <- "투자"
+user_spec3$purpose[user_spec3$purpose == "BUSINESS"] <- "사업자금"
+user_spec3$purpose[user_spec3$purpose == "BUYCAR"] <- "자동차구입"
+user_spec3$purpose[user_spec3$purpose == "HOUSEDEPOSIT"] <- "전월세보증금"
+user_spec3$purpose[user_spec3$purpose == "BUYHOUSE"] <- "주택구입"
+```
+
+## 2.6 desired_amount
 Na 값을 가진 74 행 제거
 ```{r}
 user_spec4 <- user_spec3[!(is.na(user_spec3$desired_amount)),]
 ```
 
-## 2.6 existing_loan_cnt
+## 2.7 existing_loan_cnt
 기존 대출 횟수가 Na인 값은 0으로 수정
 ```{r}
 user_spec4$existing_loan_cnt[is.na(user_spec4$existing_loan_cnt)] <- 0
 ```
 
-## 2.7 num to factor
+## 2.8 num to factor
 num 형태의 변수 중 범주형 데이터들을 factor로 변환
 ```{r}
 user_spec4$income_type <- as.factor(user_spec4$income_type)
@@ -261,10 +275,157 @@ user_spec4 %>% filter(company_enter_month > 0) %>%
 
 ## 3.3 desired_amount
 ```{r}
-
+# box plot 확인
+boxplot(user_spec4$desired_amount)
 ```
 
 
+```{r}
+# 요약값 확인
+summary(user_spec4$desired_amount)
+```
+
+
+```{r}
+# 상위 5%를 제외한 box plot
+boxplot(user_spec4$desired_amount[(user_spec4$desired_amount < quantile(user_spec4$desired_amount, probs = 0.95))])
+```
+
+
+```{r}
+# 상위 5% 제외 대출 희망 금액 분포
+ggplotly(
+user_spec4 %>% filter(desired_amount < quantile(user_spec4$desired_amount, probs = 0.95)) %>% 
+  ggplot(mapping = aes(x = desired_amount)) +
+  geom_density() +
+  theme_minimal() +
+  labs(title = "상위 5% 제외 대출 희망 금액 분포")
+)
+
+# 상위 5% 제외 성별 대출 희망 금액 분포
+ggplotly(
+user_spec4 %>% filter(desired_amount < quantile(user_spec4$desired_amount, probs = 0.95)) %>% 
+  ggplot(mapping = aes(x = desired_amount, group = gender, color = gender)) +
+  geom_density() +
+  theme_minimal() +
+  scale_color_discrete(name = "성별") +
+  labs(title = "상위 5% 제외 성별 대출 희망 금액 분포")
+)
+
+# 상위 5% 제외 수입 종류별 대출 희망 금액 분포
+ggplotly(
+user_spec4 %>% filter(desired_amount < quantile(user_spec4$desired_amount, probs = 0.95)) %>% 
+  ggplot(mapping = aes(x = desired_amount, group = income_type, color = income_type)) +
+  geom_density() +
+  theme_minimal() +
+  scale_color_discrete(name = "수입 종류") +
+  labs(title = "상위 5% 제외 수입 종류별 대출 희망 금액 분포")
+)
+
+# 상위 5% 제외 고용 형태별 대출 희망 금액 분포
+ggplotly(
+user_spec4 %>% filter(desired_amount < quantile(user_spec4$desired_amount, probs = 0.95)) %>% 
+  ggplot(mapping = aes(x = desired_amount, group = employment_type, color = employment_type)) +
+  geom_density() +
+  theme_minimal() +
+  scale_color_discrete(name = "고용 형태별") +
+  labs(title = "상위 5% 제외 고용 형태별 대출 희망 금액 분포")
+)
+
+# 상위 5% 제외 집 종류별 대출 희망 금액 분포
+ggplotly(
+user_spec4 %>% filter(desired_amount < quantile(user_spec4$desired_amount, probs = 0.95)) %>% 
+  ggplot(mapping = aes(x = desired_amount, group = houseown_type, color = houseown_type)) +
+  geom_density() +
+  theme_minimal() +
+  scale_color_discrete(name = "집 종류별") +
+  labs(title = "상위 5% 제외 집 종류별 대출 희망 금액 분포")
+)
+
+# 상위 5% 제외 목적별 대출 희망 금액 분포
+ggplotly(
+user_spec4 %>% filter(desired_amount < quantile(user_spec4$desired_amount, probs = 0.95)) %>% 
+  ggplot(mapping = aes(x = desired_amount, group = purpose, color = purpose)) +
+  geom_density() +
+  theme_minimal() +
+  scale_color_discrete(name = "목적별") +
+  labs(title = "상위 5% 제외 목적별 대출 희망 금액 분포")
+)
+```
+
+```{r}
+quantile(user_spec4$desired_amount[(user_spec4$gender == 0)])
+quantile(user_spec4$desired_amount[(user_spec4$gender == 1)])
+```
+
+
+```{r}
+# 상위 5% 대출 희망 금액 분포
+ggplotly(
+user_spec4 %>% filter(desired_amount > quantile(user_spec4$desired_amount, probs = 0.95)) %>% 
+  ggplot(mapping = aes(x = desired_amount)) +
+  geom_density() +
+  theme_minimal() +
+  labs(title = "상위 5% 대출 희망 금액 분포")
+)
+
+# 상위 5% 성별 대출 희망 금액 분포
+user_spec4 %>% filter(desired_amount > quantile(user_spec4$desired_amount, probs = 0.95)) %>% 
+  group_by(gender) %>% summarise(num = n(), 
+                                 q1 = quantile(desired_amount, 0.25),
+                                 mid = quantile(desired_amount, 0.5),
+                                 q3 = quantile(desired_amount, 0.75),
+                                 max = quantile(desired_amount, 1))
+ggplotly(
+user_spec4 %>% filter(desired_amount > quantile(user_spec4$desired_amount, probs = 0.95)) %>% 
+  ggplot(mapping = aes(x = desired_amount, group = gender, color = gender)) +
+  geom_density() +
+  theme_minimal() +
+  scale_color_discrete(name = "성별") +
+  labs(title = "상위 5% 성별 대출 희망 금액 분포")
+)
+
+
+# 상위 5% 수입 종류별 대출 희망 금액 분포
+ggplotly(
+user_spec4 %>% filter(desired_amount > quantile(user_spec4$desired_amount, probs = 0.95)) %>% 
+  ggplot(mapping = aes(x = desired_amount, group = income_type, color = income_type)) +
+  geom_density() +
+  theme_minimal() +
+  scale_color_discrete(name = "수입 종류") +
+  labs(title = "상위 5% 수입 종류별 대출 희망 금액 분포")
+)
+
+# 상위 5% 고용 형태별 대출 희망 금액 분포
+ggplotly(
+user_spec4 %>% filter(desired_amount > quantile(user_spec4$desired_amount, probs = 0.95)) %>% 
+  ggplot(mapping = aes(x = desired_amount, group = employment_type, color = employment_type)) +
+  geom_density() +
+  theme_minimal() +
+  scale_color_discrete(name = "고용 형태별") +
+  labs(title = "상위 5% 고용 형태별 대출 희망 금액 분포")
+)
+
+# 상위 5% 집 종류별 대출 희망 금액 분포
+ggplotly(
+user_spec4 %>% filter(desired_amount > quantile(user_spec4$desired_amount, probs = 0.95)) %>% 
+  ggplot(mapping = aes(x = desired_amount, group = houseown_type, color = houseown_type)) +
+  geom_density() +
+  theme_minimal() +
+  scale_color_discrete(name = "집 종류별") +
+  labs(title = "상위 5% 집 종류별 대출 희망 금액 분포")
+)
+
+# 상위 5% 목적별 대출 희망 금액 분포
+ggplotly(
+user_spec4 %>% filter(desired_amount > quantile(user_spec4$desired_amount, probs = 0.95)) %>% 
+  ggplot(mapping = aes(x = desired_amount, group = purpose, color = purpose)) +
+  geom_density() +
+  theme_minimal() +
+  scale_color_discrete(name = "목적별") +
+  labs(title = "상위 5% 목적별 대출 희망 금액 분포")
+)
+```
 
 
 
