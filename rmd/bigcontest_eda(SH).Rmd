@@ -13,11 +13,8 @@ library(dplyr)
 options(dplyr.summarise.inform = FALSE) 
 library(tidyr)
 library(ggplot2)
-theme_set((base_family='NanumGothic'))
 library(lubridate)
 library(plotly)
-# install.packages("progress")
-library(progress)
 ```
 
 
@@ -29,10 +26,12 @@ log_data <- read.csv("../../../data/log_data.csv")
 user_spec <- read.csv("../../../data/user_spec.csv")
 ```
 
+데이터 살펴보기
 ```{r}
 head(user_spec)
 ```
 
+데이터 결측치 확인
 ```{r}
 colSums(is.na(user_spec))
 ```
@@ -40,8 +39,7 @@ colSums(is.na(user_spec))
 
 # 2. User_spec 데이터 전처리  
 
-## 2.1 birth_year & gender
-
+## 2.1 birth_year & gender 결측치 처리
 ```{r}
 # 각 user_id 별로 생일과 성별 종합
 user_info <- user_spec %>% 
@@ -58,7 +56,7 @@ user_spec2 <- user_spec[!(user_spec$user_id %in% na_list), !names(user_spec) %in
 colSums(is.na(user_spec2))
 ```
 
-## 2.2 income_type
+## 2.2 income_type 
 ```{r}
 unique(user_spec2$income_type)
 user_spec3 <- user_spec2[user_spec2$income_type != "",]
