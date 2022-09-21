@@ -53,6 +53,3 @@ git config --global core.autocrlf true
 # Linux, Mac
 git config --global core.autocrlf input
 ```
-
----
-Powered By [Hydejack-Starter-Kit](https://github.com/hydecorp/hydejack-starter-kit)
