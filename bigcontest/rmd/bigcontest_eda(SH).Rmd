@@ -131,14 +131,14 @@ user_spec4 %>% group_by(birth_year) %>% summarise(num = n()) %>% ungroup() %>%
   labs(title = "전체 나이 분포")
 )
 
-# 성별 나이 분포
+# 남녀별 나이 분포
 ggplotly(
 user_spec4 %>% group_by(birth_year, gender) %>% summarise(num = n()) %>% ungroup() %>% 
   ggplot(mapping = aes(x = birth_year, y = num, group = gender, col = gender)) + 
   geom_line() +
   theme_minimal() +
-  scale_color_discrete(name = "성별") +
-  labs(title = "성별 나이 분포")
+  scale_color_discrete(name = "남녀별") +
+  labs(title = "남녀별 나이 분포")
 )
 
 # 수입 종류별 나이 분포
@@ -208,7 +208,7 @@ user_spec4 %>% filter(company_enter_month > 0) %>%
   labs(title = "전체 회사 입사일 분포")
 )
 
-# 성별 회사 입사일 분포
+# 남녀별 회사 입사일 분포
 ggplotly(
 user_spec4 %>% filter(company_enter_month > 0) %>% 
   group_by(company_enter_month, gender) %>% summarise(num = n()) %>% ungroup() %>% 
@@ -216,9 +216,9 @@ user_spec4 %>% filter(company_enter_month > 0) %>%
   geom_line() +
   xlim(ym(198601), ym(202211)) +
   theme_minimal() +
-  scale_color_discrete(name = "성별") +
+  scale_color_discrete(name = "남녀별") +
   xlab("date") +
-  labs(title = "성별 회사 입사일 분포")
+  labs(title = "남녀별 회사 입사일 분포")
 )
 
 # 수입 종류별 회사 입사일 분포
@@ -302,14 +302,14 @@ user_spec4 %>% filter(desired_amount < quantile(user_spec4$desired_amount, probs
   labs(title = "상위 5% 제외 대출 희망 금액 분포")
 )
 
-# 상위 5% 제외 성별 대출 희망 금액 분포
+# 상위 5% 제외 남녀별 대출 희망 금액 분포
 ggplotly(
 user_spec4 %>% filter(desired_amount < quantile(user_spec4$desired_amount, probs = 0.95)) %>% 
   ggplot(mapping = aes(x = desired_amount, group = gender, color = gender)) +
   geom_density() +
   theme_minimal() +
-  scale_color_discrete(name = "성별") +
-  labs(title = "상위 5% 제외 성별 대출 희망 금액 분포")
+  scale_color_discrete(name = "남녀별") +
+  labs(title = "상위 5% 제외 남녀별 대출 희망 금액 분포")
 )
 
 # 상위 5% 제외 수입 종류별 대출 희망 금액 분포
@@ -369,7 +369,7 @@ user_spec4 %>% filter(desired_amount > quantile(user_spec4$desired_amount, probs
   labs(title = "상위 5% 대출 희망 금액 분포")
 )
 
-# 상위 5% 성별 대출 희망 금액 분포
+# 상위 5% 남녀별 대출 희망 금액 분포
 user_spec4 %>% filter(desired_amount > quantile(user_spec4$desired_amount, probs = 0.95)) %>% 
   group_by(gender) %>% summarise(num = n(), 
                                  q1 = quantile(desired_amount, 0.25),
@@ -381,8 +381,8 @@ user_spec4 %>% filter(desired_amount > quantile(user_spec4$desired_amount, probs
   ggplot(mapping = aes(x = desired_amount, group = gender, color = gender)) +
   geom_density() +
   theme_minimal() +
-  scale_color_discrete(name = "성별") +
-  labs(title = "상위 5% 성별 대출 희망 금액 분포")
+  scale_color_discrete(name = "남녀별") +
+  labs(title = "상위 5% 남녀별 대출 희망 금액 분포")
 )
 
 
@@ -446,14 +446,14 @@ user_spec4 %>% group_by(existing_loan_cnt) %>% summarise(num = n()) %>% ungroup(
   labs(title = "전체 대출 횟수 분포")
 )
 
-# 성별 대출 횟수 분포
+# 남녀별 대출 횟수 분포
 ggplotly(
 user_spec4 %>% group_by(existing_loan_cnt, gender) %>% summarise(num = n()) %>% ungroup() %>% 
   ggplot(mapping = aes(x = existing_loan_cnt, y = num, group = gender, color = gender)) +
   geom_line() +
   theme_minimal() +
-  scale_color_discrete(name = "성별") +
-  labs(title = "성별 대출 횟수 분포")
+  scale_color_discrete(name = "남녀별") +
+  labs(title = "남녀별 대출 횟수 분포")
 )
 
 # 수입 종류별 대출 횟수 분포
@@ -508,13 +508,13 @@ user_spec4 %>% ggplot(mapping = aes(x = existing_loan_cnt)) +
   labs(title = "전체 대출 횟수 분포")
 )
 
-# 성별 대출 횟수 분포
+# 남녀별 대출 횟수 분포
 ggplotly(
 user_spec4 %>% ggplot(mapping = aes(x = existing_loan_cnt, group = gender, color = gender)) +
   geom_density() +
   theme_minimal() +
-  scale_color_discrete(name = "성별") +
-  labs(title = "성별 대출 횟수 분포")
+  scale_color_discrete(name = "남녀별") +
+  labs(title = "남녀별 대출 횟수 분포")
 )
 
 # 수입 종류별 대출 횟수 분포
@@ -556,15 +556,288 @@ user_spec4 %>% ggplot(mapping = aes(x = existing_loan_cnt, group = purpose, col 
 ```
 
 
+## 3.5 gender & other factor
+```{r}
+# 남녀별 분포
+ggplotly(
+user_spec4 %>% group_by(gender) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = gender, y = num, fill = gender)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="남녀별 빈도수 분포")
+)
+
+# 남녀별 수입 종류별 분포
+ggplotly(
+user_spec4 %>% group_by(gender, income_type) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = income_type, y = num, fill = gender)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="남녀별 수입 종류별 빈도수 분포")
+)
+
+# 남녀별 고용 형태별 분포
+ggplotly(
+user_spec4 %>% group_by(gender, employment_type) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = employment_type, y = num, fill = gender)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="남녀별 고용 형태별 빈도수 분포")
+)
+
+# 남녀별 집 종류별 분포
+ggplotly(
+user_spec4 %>% group_by(gender, houseown_type) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = houseown_type, y = num, fill = gender)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="남녀별 집 종류별 빈도수 분포")
+)
+
+# 남녀별 목적별 분포
+ggplotly(
+user_spec4 %>% group_by(gender, purpose) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = purpose, y = num, fill = gender)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="남녀별 목적별 빈도수 분포")
+)
+
+```
+
+## 3.6 income_type
+```{r}
+# 수입 종류별 분포
+ggplotly(
+user_spec4 %>% group_by(income_type) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = income_type, y = num, fill = income_type)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="수입 종류별 빈도수 분포")
+)
+
+# 수입 종류별 남녀별 분포
+ggplotly(
+user_spec4 %>% group_by(income_type, gender) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = gender, y = num, fill = income_type)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="수입 종류별 남녀별 빈도수 분포")
+)
+
+# 수입 종류별 고용 형태별 분포
+ggplotly(
+user_spec4 %>% group_by(income_type, employment_type) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = employment_type, y = num, fill = income_type)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="수입 종류별 고용 형태별 빈도수 분포")
+)
+
+# 수입 종류별 집 종류별 분포
+ggplotly(
+user_spec4 %>% group_by(income_type, houseown_type) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = houseown_type, y = num, fill = income_type)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="수입 종류별 집 종류별 빈도수 분포")
+)
+
+# 수입 종류별 목적별 분포
+ggplotly(
+user_spec4 %>% group_by(income_type, purpose) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = purpose, y = num, fill = income_type)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="수입 종류별 목적별 빈도수 분포")
+)
+```
+
+## 3.7 employment_type
+```{r}
+# 고용 형태별 분포
+ggplotly(
+user_spec4 %>% group_by(employment_type) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = employment_type, y = num, fill = employment_type)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="고용 형태별 빈도수 분포")
+)
+
+# 고용 형태별 남녀별 분포
+ggplotly(
+user_spec4 %>% group_by(employment_type, gender) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = gender, y = num, fill = employment_type)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="고용 형태별 남녀별 빈도수 분포")
+)
+
+# 고용 형태별 수입 종류별 분포
+ggplotly(
+user_spec4 %>% group_by(employment_type, income_type) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = income_type, y = num, fill = employment_type)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="고용 형태별 수입 종류별 빈도수 분포")
+)
+
+# 고용 형태별 집 종류별 분포
+ggplotly(
+user_spec4 %>% group_by(employment_type, houseown_type) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = houseown_type, y = num, fill = employment_type)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="고용 형태별 집 종류별 빈도수 분포")
+)
+
+# 고용 형태별 목적별 분포
+ggplotly(
+user_spec4 %>% group_by(employment_type, purpose) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = purpose, y = num, fill = employment_type)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="고용 형태별 목적별 빈도수 분포")
+)
+```
 
 
+## 3.8 houseown_type
+```{r}
+# 집 종류별 분포
+ggplotly(
+user_spec4 %>% group_by(houseown_type) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = houseown_type, y = num, fill = houseown_type)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="집 종류별 빈도수 분포")
+)
+
+# 집 종류별 남녀별 분포
+ggplotly(
+user_spec4 %>% group_by(houseown_type, gender) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = gender, y = num, fill = houseown_type)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="집 종류별 남녀별 빈도수 분포")
+)
+
+# 집 종류별 수입 종류별 분포
+ggplotly(
+user_spec4 %>% group_by(houseown_type, income_type) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = income_type, y = num, fill = houseown_type)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="집 종류별 수입 종류별 빈도수 분포")
+)
+
+# 집 종류별 고용 형태별 분포
+ggplotly(
+user_spec4 %>% group_by(houseown_type, employment_type) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = employment_type, y = num, fill = houseown_type)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="집 종류별 고용 형태별 빈도수 분포")
+)
+
+# 집 종류별 목적별 분포
+ggplotly(
+user_spec4 %>% group_by(houseown_type, purpose) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = purpose, y = num, fill = houseown_type)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="집 종류별 목적별 빈도수 분포")
+)
+```
 
 
+## 3.9 purpose
+```{r}
+# 목적별분포
+ggplotly(
+user_spec4 %>% group_by(purpose) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = purpose, y = num, fill = purpose)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="목적별 빈도수 분포")
+)
+
+# 목적별 남녀별 분포
+ggplotly(
+user_spec4 %>% group_by(purpose, gender) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = gender, y = num, fill = purpose)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="목적별 남녀별 빈도수 분포")
+)
+
+# 목적별 수입 종류별 분포
+ggplotly(
+user_spec4 %>% group_by(purpose, income_type) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = income_type, y = num, fill = purpose)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="목적별 수입 종류별 빈도수 분포")
+)
+
+# 목적별 고용 형태별 분포
+ggplotly(
+user_spec4 %>% group_by(purpose, employment_type) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = employment_type, y = num, fill = purpose)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="목적별 고용 형태별 빈도수 분포")
+)
+
+# 목적별 집 종류별 분포
+ggplotly(
+user_spec4 %>% group_by(purpose, houseown_type) %>% summarise(num = n()) %>% ungroup() %>% 
+  ggplot(mapping = aes(x = houseown_type, y = num, fill = purpose)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title ="목적별 집 종류별 빈도수 분포")
+)
+```
 
 
+# 4. loan_result & log_data
+## 4.1 log_data 수정
+```{r}
+# 각 user_id별로 event 횟수 데이터 생성
+user_event <- log_data %>% group_by(user_id, event) %>% summarise(num = n()) %>% ungroup()
 
+# loan_result 데이터에 각 application_id에 대응되는 user_id 붙이기
+loan_result2 <- loan_result %>% left_join(user_spec[,c("application_id", "user_id")], by = "application_id")
 
-
+head(loan_result2[is.na(loan_result2$user_id), "application_id"])
+sum(user_spec$application_id %in% loan_result2[is.na(loan_result2$user_id), "application_id"])
+# 이건 어떻게 하지...
+```
 
 
 
