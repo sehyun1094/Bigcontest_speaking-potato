@@ -1,0 +1,171 @@
+---
+title: "Bigcontest_EDA"
+author: "Cho HangBeum"
+output: 
+  rmdformats::readthedown:
+  too_depth: 3
+mainfont: NanumGothic
+---
+
+# 0. Library Packages 
+```{r, message=FALSE, warning=FALSE}
+library(dplyr)
+options(dplyr.summarise.inform = FALSE) 
+library(tidyr)
+library(lubridate)
+library(ggplot2)
+library(lubridate)
+library(plotly)
+```
+
+
+
+# 1. Data load
+
+```{r}
+loan_result <- read.csv("../../../../bigcontest/data/loan_result.csv")
+log_data <- read.csv("../../../../bigcontest/data/log_data.csv")
+user_spec <- read.csv("../../../../bigcontest/data/user_spec.csv")
+```
+
+
+# 2. 데이터 전처리
+
+## 2.1 User_spec 데이터 전처리  
+
+### 2.1.1 birth_year & gender 결측치 처리
+```{r}
+# 각 user_id 별로 생일과 성별 종합
+user_info <- user_spec %>% 
+             group_by(user_id) %>% 
+             summarise(birth_year = mean(birth_year, na.rm = T), gender = mean(gender, na.rm = T)) %>% 
+             ungroup()
+
+# 모든 데이터에서 NA값인 user_id 개수 확인
+colSums(is.na(user_info))
+
+# NA 값 제거(6856명) 및 NA 채우기
+na_list <- user_info$user_id[is.na(user_info$birth_year)]
+user_spec2 <- user_spec[!(user_spec$user_id %in% na_list), !names(user_spec) %in% c("birth_year", "gender")] %>% left_join(user_info, by = "user_id")
+colSums(is.na(user_spec2))
+```
+
+## 2.1.2 income_type 
+income_type이 공백인 값들에 "BLANK" 입력
+```{r}
+user_spec2$income_type[user_spec2$income_type == ""] <- "BLANK"
+unique(user_spec2$income_type)
+```
+
+## 2.1.3 yearly_income
+Na 값을 가진 5 행 제거
+```{r}
+user_spec3 <- user_spec2[!(is.na(user_spec2$yearly_income)),]
+```
+
+## 2.1.4 company_enter_month
+우선 company_enter_month가 Na인 경우 0 대입, 이후 입력 형태가 YYYYMM 가 아닌 값들 수정
+```{r}
+user_spec3$company_enter_month[is.na(user_spec3$company_enter_month)] <- 0
+user_spec3$company_enter_month[user_spec3$company_enter_month > 1000000] <- user_spec3$company_enter_month[user_spec3$company_enter_month > 1000000] %/% 100
+```
+
+## 2.1.5 purpose
+영어로 입력된 값을 한글로 병합
+```{r}
+unique(user_spec3$purpose)
+user_spec3$purpose[user_spec3$purpose == "LIVING"] <- "생활비"
+user_spec3$purpose[user_spec3$purpose == "SWITCHLOAN"] <- "대환대출"
+user_spec3$purpose[user_spec3$purpose == "ETC"] <- "기타"
+user_spec3$purpose[user_spec3$purpose == "INVEST"] <- "투자"
+user_spec3$purpose[user_spec3$purpose == "BUSINESS"] <- "사업자금"
+user_spec3$purpose[user_spec3$purpose == "BUYCAR"] <- "자동차구입"
+user_spec3$purpose[user_spec3$purpose == "HOUSEDEPOSIT"] <- "전월세보증금"
+user_spec3$purpose[user_spec3$purpose == "BUYHOUSE"] <- "주택구입"
+```
+
+## 2.1.6 desired_amount
+Na 값을 가진 74 행 제거
+```{r}
+user_spec4 <- user_spec3[!(is.na(user_spec3$desired_amount)),]
+```
+
+## 2.1.7 existing_loan_cnt
+기존 대출 횟수가 Na인 값은 0으로 수정
+```{r}
+user_spec4$existing_loan_cnt[is.na(user_spec4$existing_loan_cnt)] <- 0
+```
+
+## 2.1.8 num to factor
+num 형태의 변수 중 범주형 데이터들을 factor로 변환
+```{r}
+user_spec4$income_type <- as.factor(user_spec4$income_type)
+user_spec4$employment_type <- as.factor(user_spec4$employment_type)
+user_spec4$houseown_type <- as.factor(user_spec4$houseown_type)
+user_spec4$purpose <- as.factor(user_spec4$purpose)
+user_spec4$gender <- as.factor(user_spec4$gender)
+```
+
+```{r}
+colSums(is.na(user_spec4))
+```
+
+# 2.2 loan_result 수정
+
+```{r}
+loan_result_test = loan_result[is.na(loan_result$is_applied),]
+loan_result_train = loan_result[!(is.na(loan_result$is_applied)),]
+```
+
+
+
+
+
+## 4.1 log_data 수정
+```{r}
+# 각 user_id별로 event 횟수 데이터 생성
+user_event <- log_data %>% group_by(user_id, event) %>% summarise(num = n()) %>% ungroup()
+
+# loan_result 데이터에 각 application_id에 대응되는 user_id 붙이기
+loan_result2 <- loan_result %>% left_join(user_spec[,c("application_id", "user_id")], by = "application_id")
+
+head(loan_result2[is.na(loan_result2$user_id), "application_id"])
+sum(user_spec$application_id %in% loan_result2[is.na(loan_result2$user_id), "application_id"])
+# 이건 어떻게 하지...
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
