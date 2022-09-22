@@ -829,48 +829,29 @@ user_spec4 %>% group_by(purpose, houseown_type) %>% summarise(num = n()) %>% ung
 ## 4.1 log_data 수정
 ```{r}
 # 각 user_id별로 event 횟수 데이터 생성
-user_event <- log_data %>% group_by(user_id, event) %>% summarise(num = n()) %>% ungroup()
+user_event <- log_data %>% group_by(user_id, event) %>% summarise(num = n()) %>% ungroup() %>% 
+                           spread(key = "event", value = num, fill = 0)
+head(user_event)
+
+# loan_result Na 제거
+loan_result2 <- na.omit(loan_result)
 
 # loan_result 데이터에 각 application_id에 대응되는 user_id 붙이기
-loan_result2 <- loan_result %>% left_join(user_spec[,c("application_id", "user_id")], by = "application_id")
+loan_result2 <- loan_result2 %>% left_join(user_spec[,c("application_id", "user_id")], by = "application_id")
 
-head(loan_result2[is.na(loan_result2$user_id), "application_id"])
-sum(user_spec$application_id %in% loan_result2[is.na(loan_result2$user_id), "application_id"])
-# 이건 어떻게 하지...
+# loan_result 데이터에 user_event 데이터 붙이기
+loan_result2 <- loan_result2 %>% left_join(user_event, by = "user_id")
+
+head(loan_result2)
 ```
 
+loan_result에 있는 user_id 259,231 중 19,220개의 id의 log_data가 없음. 이를 어떻게 처리할지 고민이 필요해 보임.
+```{r}
+length(unique(loan_result2$user_id))
+length(unique(user_event$user_id))
+length(unique(user_spec$user_id))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+sum(unique(loan_result2$user_id) %in% unique(user_event$user_id))
+sum(!(unique(loan_result2$user_id) %in% unique(user_event$user_id)))
+```
 
