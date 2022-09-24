@@ -125,6 +125,8 @@ user_spec4[user_spec4$purpose == 0,]
 user_spec5 = user_spec4[-593485,] 
 ```
 
+여기까지 함!
+
 ## 2.1.6 desired_amount
 Na 값을 가진 74 행 제거
 ```{r}
