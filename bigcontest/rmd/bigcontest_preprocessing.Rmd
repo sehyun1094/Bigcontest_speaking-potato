@@ -1,6 +1,6 @@
 ---
-title: "Bigcontest_EDA"
-author: "Cho HangBeum"
+title: "Bigcontest_Preprocessing"
+author: "Speaking Potato"
 output: 
   rmdformats::readthedown:
   too_depth: 3
@@ -16,6 +16,7 @@ library(lubridate)
 library(ggplot2)
 library(lubridate)
 library(plotly)
+library(progress)
 ```
 
 
@@ -23,6 +24,7 @@ library(plotly)
 # 1. Data load
 
 ```{r}
+# 경로 알아서 바꾸세요!
 loan_result <- read.csv("../../../../bigcontest/data/loan_result.csv")
 log_data <- read.csv("../../../../bigcontest/data/log_data.csv")
 user_spec <- read.csv("../../../../bigcontest/data/user_spec.csv")
@@ -31,7 +33,25 @@ user_spec <- read.csv("../../../../bigcontest/data/user_spec.csv")
 
 # 2. 데이터 전처리
 
+# 2.1 loan_result 데이터 전처리
+
+```{r}
+application_list = unique(user_spec[,"application_id"])
+loan_result2 = loan_result[(loan_result$application_id %in% application_list) &
+                              !(is.na(loan_result$loan_limit)),]
+loan_result_test = loan_result[is.na(loan_result$is_applied),]
+loan_result_train = loan_result[!(is.na(loan_result$is_applied)),]
+```
+
 ## 2.1 User_spec 데이터 전처리  
+
+```{r}
+head(user_spec)
+```
+
+```{r}
+colSums(is.na(user_spec))
+```
 
 ### 2.1.1 birth_year & gender 결측치 처리
 ```{r}
@@ -43,7 +63,9 @@ user_info <- user_spec %>%
 
 # 모든 데이터에서 NA값인 user_id 개수 확인
 colSums(is.na(user_info))
+```
 
+```{r}
 # NA 값 제거(6856명) 및 NA 채우기
 na_list <- user_info$user_id[is.na(user_info$birth_year)]
 user_spec2 <- user_spec[!(user_spec$user_id %in% na_list), !names(user_spec) %in% c("birth_year", "gender")] %>% left_join(user_info, by = "user_id")
@@ -51,38 +73,59 @@ colSums(is.na(user_spec2))
 ```
 
 ## 2.1.2 income_type 
-income_type이 공백인 값들에 "BLANK" 입력
 ```{r}
-user_spec2$income_type[user_spec2$income_type == ""] <- "BLANK"
-unique(user_spec2$income_type)
+user_spec2 %>% group_by(income_type, employment_type) %>% summarise(n = n())
+```
+
+
+```{r}
+# income_type이 없는 application_id들을 loan_result에서 찾을 수 없다.
+# 전부 입력 미비에 따른 중도 이탈자로 생각하자!
+blank_list = user_spec2[user_spec2$income_type == "",application_id]
+dim(loan_result[loan_result$application_id %in% blank_list,])
+user_spec3 <- user_spec2[user_spec2$income_type != "",]
+colSums(is.na(user_spec3))
 ```
 
 ## 2.1.3 yearly_income
 Na 값을 가진 5 행 제거
 ```{r}
-user_spec3 <- user_spec2[!(is.na(user_spec2$yearly_income)),]
+na_list2 = user_spec3[is.na(user_spec3$yearly_income),"application_id"]
+loan_result[loan_result$application_id %in% na_list2,]
+# 딱 한 사람만 제외하고 중도이탈!
+na_list2 = na_list2[-4]
+user_spec4 <- user_spec3[!(user_spec3$application_id %in% na_list2),]
+```
+```{r}
+# application_id 341149 해결, 수입 없고 사업자금 목적임을 고려하여 0 impute
+user_spec4[user_spec4$application_id == 341149,] = 0
+colSums(is.na(user_spec4))
 ```
 
 ## 2.1.4 company_enter_month
 우선 company_enter_month가 Na인 경우 0 대입, 이후 입력 형태가 YYYYMM 가 아닌 값들 수정
 ```{r}
-user_spec3$company_enter_month[is.na(user_spec3$company_enter_month)] <- 0
-user_spec3$company_enter_month[user_spec3$company_enter_month > 1000000] <- user_spec3$company_enter_month[user_spec3$company_enter_month > 1000000] %/% 100
+user_spec4$company_enter_month[is.na(user_spec4$company_enter_month)] <- 0
+user_spec4$company_enter_month[user_spec4$company_enter_month > 1000000] <- user_spec4$company_enter_month[user_spec4$company_enter_month > 1000000] %/% 100
 ```
 
 ## 2.1.5 purpose
 영어로 입력된 값을 한글로 병합
 ```{r}
-unique(user_spec3$purpose)
-user_spec3$purpose[user_spec3$purpose == "LIVING"] <- "생활비"
-user_spec3$purpose[user_spec3$purpose == "SWITCHLOAN"] <- "대환대출"
-user_spec3$purpose[user_spec3$purpose == "ETC"] <- "기타"
-user_spec3$purpose[user_spec3$purpose == "INVEST"] <- "투자"
-user_spec3$purpose[user_spec3$purpose == "BUSINESS"] <- "사업자금"
-user_spec3$purpose[user_spec3$purpose == "BUYCAR"] <- "자동차구입"
-user_spec3$purpose[user_spec3$purpose == "HOUSEDEPOSIT"] <- "전월세보증금"
-user_spec3$purpose[user_spec3$purpose == "BUYHOUSE"] <- "주택구입"
+unique(user_spec4$purpose)
+user_spec4$purpose[user_spec4$purpose == "LIVING"] <- "생활비"
+user_spec4$purpose[user_spec4$purpose == "SWITCHLOAN"] <- "대환대출"
+user_spec4$purpose[user_spec4$purpose == "ETC"] <- "기타"
+user_spec4$purpose[user_spec4$purpose == "INVEST"] <- "투자"
+user_spec4$purpose[user_spec4$purpose == "BUSINESS"] <- "사업자금"
+user_spec4$purpose[user_spec4$purpose == "BUYCAR"] <- "자동차구입"
+user_spec4$purpose[user_spec4$purpose == "HOUSEDEPOSIT"] <- "전월세보증금"
+user_spec4$purpose[user_spec4$purpose == "BUYHOUSE"] <- "주택구입"
+user_spec4[user_spec4$purpose == 0,]
+user_spec5 = user_spec4[-593485,] 
 ```
+
+여기까지 함!
 
 ## 2.1.6 desired_amount
 Na 값을 가진 74 행 제거
@@ -110,12 +153,7 @@ user_spec4$gender <- as.factor(user_spec4$gender)
 colSums(is.na(user_spec4))
 ```
 
-# 2.2 loan_result 수정
 
-```{r}
-loan_result_test = loan_result[is.na(loan_result$is_applied),]
-loan_result_train = loan_result[!(is.na(loan_result$is_applied)),]
-```
 
 
 
