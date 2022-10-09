@@ -1,0 +1,30 @@
+---
+title: "log_data"
+output: html_document
+date: "2022-10-07"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+log_data <- read.csv("../../../../../bigcontest/data/log_data.csv")
+library(dplyr)
+```
+
+```{r}
+head(log_data)
+```
+
+```{r}
+log_data[log_data$user_id == 298841,] %>% arrange(timestamp)
+```
+```{r}
+log_data[log_data$user_id == 576409,] %>% arrange(timestamp)
+```
+
+
+
+
+
