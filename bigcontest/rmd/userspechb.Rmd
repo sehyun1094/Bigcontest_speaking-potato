@@ -11,3 +11,59 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 user_spec <- read.csv("../../../../../bigcontest/data/user_spec.csv")
 ```
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(lubridate)
+library(VIM)
+```
+
+
+```{r}
+# 각 user_id 별로 생일과 성별 종합
+user_info <- user_spec %>% 
+             group_by(user_id) %>% 
+             summarise(birth_year = mean(birth_year, na.rm = T), gender = mean(gender, na.rm = T)) %>% 
+             ungroup()
+
+# NA 채우기
+user_spec <- user_spec[, !names(user_spec) %in% c("birth_year", "gender")] %>% left_join(user_info, by = "user_id")
+
+impute_gender_and_birth_year = function(data) {
+  
+  # Na인 user_id 체크
+  na_list <- unique(data$user_id[is.na(data$gender)])
+  
+  # Na가 아닌 데이터 추출
+  temp <- data %>% filter(!(user_id %in% na_list))
+  
+  pb <- progress::progress_bar$new(total = length(na_list))
+  for(i in 1:length(na_list)){
+    pb$tick()
+    
+    # Na의 yearly_income 최댓값 추출
+    temp_yearly_income <- data %>% filter(user_id == na_list[i]) %>% 
+                                        summarise(max = max(yearly_income))
+    
+    # 모든 yearly_income 이 Na인 경우 제외
+    if(!is.na(temp_yearly_income)){
+      min_diff <- temp %>% mutate(diff = abs(yearly_income - temp_yearly_income[1,1])) %>% 
+                           summarise(min = min(diff, na.rm = TRUE))
+      
+      result <- temp %>% mutate(diff = abs(yearly_income - temp_yearly_income[1,1])) %>% 
+                         filter(diff == min_diff[1,1]) %>%
+                         select(user_id, gender, birth_year) %>% 
+                         unique() %>% 
+                         summarise(gender = round(mean(gender, na.rm = T),0), birth_year = round(mean(birth_year, na.rm = T), 0))
+      
+      data[data$user_id == na_list[i], "gender"] <- result[1,1]
+      data[data$user_id == na_list[i], "birth_year"] <- result[1,2]
+    }
+  }
+  
+  return(data)
+}
+
+user_spec <- impute_gender_and_birth_year(user_spec)
+```
