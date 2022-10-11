@@ -1,0 +1,13 @@
+---
+title: "user_spec_hb"
+output: html_document
+date: "2022-10-10"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+user_spec <- read.csv("../../../../../bigcontest/data/user_spec.csv")
+```
