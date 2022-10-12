@@ -1,0 +1,36 @@
+---
+title: "kohonen"
+output: html_document
+date: "2022-10-12"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# install.packages("kohonen")
+library(kohonen)
+```
+
+```{r}
+data = read.csv('../../../../../bigcontest/data/preprocessed/for_som.csv')
+X = data[, 2:14]
+```
+
+```{r}
+gr <- somgrid(xdim = 3, ydim = 3, topo = "hexagonal")
+ss <- supersom(as.matrix(X), gr, rlen = 100, alpha = 0.1)
+plot(ss, type="changes")
+plot(ss, type="count", main="Node Counts")
+plot(ss, type="codes")
+```
+
+
+```{r}
+gr2 <- somgrid(xdim = 2, ydim = 2, topo = "hexagonal")
+ss2 <- supersom(as.matrix(X), gr2, rlen = 100, alpha = 0.1)
+plot(ss2, type="changes")
+plot(ss2, type="count", main="Node Counts")
+plot(ss2, type="codes")
+```
