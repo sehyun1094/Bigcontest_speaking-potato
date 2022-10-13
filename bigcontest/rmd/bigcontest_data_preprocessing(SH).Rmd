@@ -23,6 +23,10 @@ user_spec <- read.csv("../../../../../bigcontest/data/user_spec.csv")
 log_data_summary <- read.csv("../../../../../bigcontest/data/preprocessed/log_data_summary.csv")
 ```
 
+```{r}
+head(loan_result)
+```
+
 
 # 2. Loan_result
 ```{r}

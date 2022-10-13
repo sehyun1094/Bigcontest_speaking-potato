@@ -1,0 +1,35 @@
+---
+title: "EDA_added"
+output: html_document
+date: "2022-10-13"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE, warning=FALSE}
+library(dplyr)
+options(dplyr.summarise.inform = FALSE) 
+library(tidyr)
+library(lubridate)
+library(ggplot2)
+library(lubridate)
+library(plotly)
+```
+
+```{r}
+data <- read.csv("../../../../../bigcontest/data/preprocessed/data.csv")
+colnames(data)
+```
+
+```{r}
+data[1:10,]
+```
+```{r}
+ggplot(data = data, mapping = aes(x = loan_rate, y = loan_limit, 
+                                         colors = is_applied)) +
+  geom_point() +
+  theme_minimal()
+```
+
