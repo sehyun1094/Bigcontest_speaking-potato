@@ -20,7 +20,6 @@ library(VIM)
 loan_result <- read.csv("../../../../../bigcontest/data/loan_result.csv")
 log_data <- read.csv("../../../../../bigcontest/data/log_data.csv")
 user_spec <- read.csv("../../../../../bigcontest/data/user_spec.csv")
-log_data_summary <- read.csv("../../../../../bigcontest/data/preprocessed/log_data_summary.csv")
 ```
 
 ```{r}
@@ -105,11 +104,6 @@ loan_result <- loan_result %>% left_join(log_data_summary[,c(1,4,5)], by = 'appl
 rm(log_data_summary)
 ```
 
-```{r}
-head(log_data_summary)
-```
-
-
 # 4. User_spec
 
 ## 4.6 yearly_income  
@@ -125,16 +119,6 @@ colSums(is.na(user_spec))
 
 
 ## 4.2 credit_score
-
-```{r}
-user_spec[is.na(user_spec$credit_score) ,c("user_id","credit_score", "date_cd")]
-```
-
-```{r}
-user_spec[user_spec$user_id == 558904	,c("user_id","credit_score", "date_cd")]
-```
-
-
 
 ```{r}
 # user_spec에서 insert_time을 이용하여 날짜 변수인 date_cd 생성
