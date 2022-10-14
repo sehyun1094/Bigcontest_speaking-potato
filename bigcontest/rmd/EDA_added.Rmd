@@ -24,12 +24,15 @@ colnames(data)
 ```
 
 ```{r}
-data[1:10,]
+data[1:100,]
 ```
 ```{r}
-ggplot(data = data, mapping = aes(x = loan_rate, y = loan_limit, 
-                                         colors = is_applied)) +
-  geom_point() +
-  theme_minimal()
+data$is_applied <- factor(data$is_applied)
+```
+```{r}
+ggplot(data = data, mapping = aes(x = is_applied,  y = log10(loan_limit), color = is_applied)) +
+  geom_boxplot() +
+  theme_minimal() +
+  coord_flip()
 ```
 

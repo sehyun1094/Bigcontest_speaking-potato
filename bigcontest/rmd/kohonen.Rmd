@@ -11,26 +11,111 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 # install.packages("kohonen")
 library(kohonen)
+library(tidyverse)
+# install.packages("plotrix")
+library(plotrix)
+library(ggplot2)
 ```
 
 ```{r}
 data = read.csv('../../../../../bigcontest/data/preprocessed/for_som.csv')
-X = data[, 2:14]
+data %>% head
+```
+```{r}
+# min-max scaling
+normalize = function(x) {
+  return((x-min(x))/(max(x)-min(x)))
+}
+data$birth_year = normalize(data$birth_year)
+user_id = data %>% select(user_id)
+data = data %>% select(-user_id)
+data %>% head
 ```
 
 ```{r}
-gr <- somgrid(xdim = 3, ydim = 3, topo = "hexagonal")
-ss <- supersom(as.matrix(X), gr, rlen = 100, alpha = 0.1)
+gr <- somgrid(xdim = 2, ydim = 2, topo = "hexagonal")
+ss <- supersom(as.matrix(data), gr, rlen = 200, alpha = c(0.05,0.003))
 plot(ss, type="changes")
+```
+```{r}
 plot(ss, type="count", main="Node Counts")
+```
+```{r}
+plot(ss, type="dist.neighbours", main = "SOM neighbour distances")
+```
+```{r}
 plot(ss, type="codes")
 ```
+```{r}
+plot(ss, type="quality", main = "mapping quality")  # 할당된 element 들의 유사도
+```
+```{r}
+data$cluster_index = ss$unit.classif
+data %>% head
+```
+
+```{r}
+data1 = data[data$cluster_index == 1,] %>% select(-cluster_index) %>% apply(2, mean)
+data2 = data[data$cluster_index == 2,] %>% select(-cluster_index) %>% apply(2, mean)
+data3 = data[data$cluster_index == 3,] %>% select(-cluster_index) %>% apply(2, mean)
+data4 = data[data$cluster_index == 4,] %>% select(-cluster_index) %>% apply(2, mean)
+data_temp = data.frame(name = names(data1), cluster1 = data1, cluster2 = data2, cluster3 = data3, cluster4 = data4)
+```
+
+```{r}
+ggplot(data_temp, aes(x = name, y = cluster1, fill = name)) +
+  geom_bar(stat = 'identity', width = 0.5) +
+  theme_minimal() +
+  coord_flip()
+```
+```{r}
+ggplot(data_temp, aes(x = name, y = cluster1, fill = name)) +
+  geom_bar(stat = 'identity', width = 0.5) +
+  theme_minimal() +
+  coord_flip() +
+  labs("cluster1")
+```
+```{r}
+ggplot(data_temp, aes(x = name, y = cluster2, fill = name)) +
+  geom_bar(stat = 'identity', width = 0.5) +
+  theme_minimal() +
+  coord_flip() +
+  labs('cluster2')
+```
+```{r}
+ggplot(data_temp, aes(x = name, y = cluster3, fill = name)) +
+  geom_bar(stat = 'identity', width = 0.5) +
+  theme_minimal() +
+  coord_flip() +
+  labs("cluster3")
+```
+```{r}
+ggplot(data_temp, aes(x = name, y = cluster4, fill = name)) +
+  geom_bar(stat = 'identity', width = 0.5) +
+  theme_minimal() +
+  coord_flip() +
+  labs("cluster4")
+```
+
+
+
+
+
+
+
+
+
+
 
 
 ```{r}
-gr2 <- somgrid(xdim = 2, ydim = 2, topo = "hexagonal")
-ss2 <- supersom(as.matrix(X), gr2, rlen = 100, alpha = 0.1)
-plot(ss2, type="changes")
-plot(ss2, type="count", main="Node Counts")
-plot(ss2, type="codes")
+radial.pie(data1, labels=names(data1), label.prop = 1.2, main = 'cluster 1', show.grid.labels = FALSE, sector.colors = 1:13)
 ```
+
+
+
+
+
+
+
+
